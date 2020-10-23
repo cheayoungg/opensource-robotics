@@ -7,7 +7,8 @@
 //        TRIG            ==>  9
 //        TXD             ==>  4
 //        RXD             ==>  5
-//
+//     sketch_line_following_commnunication.ino
+//     Appinventor file : Robot_Controller_II_robotics_2020.aia
 /******************************************************************************************/
 #include <SoftwareSerial.h>
 
