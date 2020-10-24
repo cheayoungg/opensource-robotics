@@ -91,8 +91,8 @@ void loop() {
 //  CONTROL : interrupt service routine
 void timerIsr()
 {
-    readSensors();
-    sendCommand();  
+    readSensors();  // read all sensors
+    sendCommand();  // send motion control command to application context
 }
 
 // CONTROL : control algorithm  
