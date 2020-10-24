@@ -14,24 +14,24 @@
 #include <TimerOne.h>
 
 // ISR motion 설정
-const char F = 1;
-const char B = 2;
-const char R = 3;
-const char L = 4;
-const char S = 5;
-int powerLeft = 100, powerRight=100;
-int command;
+const char F = 1; // forward
+const char B = 2; // backward
+const char R = 3; // right
+const char L = 4; // left
+const char S = 5; // stop
+int powerLeft = 100, powerRight=100; // motor power setting for left and right motors 0-255
+int command; // motion control variable
 
 //ultrasonic sensor 
-char trig = 9;
-char echo = 8;
-int distance;
-int cutDistance = 5;
+char trig = 9; // trig pin : 9
+char echo = 8; // echo pin : 8
+int distance;  // distance
+int cutDistance = 5; // 장애물 감지 최소 거리
 Ultrasonic ultrasonic(trig,echo); // ultrasonic sensor object
 
 // bluetooth communication
-int blueRx = 4;
-int blueTx = 5;
+int blueRx = 4; // RXD
+int blueTx = 5; // TXD
 unsigned char commandReadyFlag = 0;
 unsigned char commandBlue, power;   // bluetooth communication command, motor power configuration
 SoftwareSerial mySerial(blueRx,blueTx); // 소프트웨어 시리얼통신 포트 생성
@@ -46,7 +46,7 @@ SoftwareSerial mySerial(blueRx,blueTx); // 소프트웨어 시리얼통신 포�
 #define MOTOR_LEFT 0
 #define MOTOR_RIGHT 1
 
-// motor settings
+// motor shield settings
 // 아두이노 PIN 설정
 const byte PWMA = 3;      // PWM control (speed) for motor A
 const byte PWMB = 11;     // PWM control (speed) for motor B
@@ -60,11 +60,12 @@ int sensorLeft, sensorRight;  // IR sensor : BLACK(0), WHITE(1)
 void setup() {
  
   // Initialize ISR
-  Timer1.initialize(50000);  //  20 HZ,    COUNT =  1000000 / FREQ
+  Timer1.initialize(50000);  //  인터럽트 발생 주파수 , FREQ=20 HZ,    COUNT =  1000000 / FREQ
   Timer1.attachInterrupt( timerIsr ); // attach the service routine here
+
   
   Serial.begin(9600);  // serial
-  mySerial.begin(9600); // software serial
+  mySerial.begin(9600); // software serial bluetooth communication
   setupArdumoto();      // Set all pins as outputs for motor control
 }
 
