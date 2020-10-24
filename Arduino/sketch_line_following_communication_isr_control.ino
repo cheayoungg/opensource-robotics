@@ -155,7 +155,7 @@ void motionControl(int command){
 // SENSING : Read all sensors
 void readSensors(){
   readIrSensor();
-  readUltraSensor()
+  readUltraSensor();
   
 }
 // SENSING: Read IR sensor measurements
