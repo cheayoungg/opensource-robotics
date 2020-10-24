@@ -153,8 +153,8 @@ void motionControl(int command){
 
 /***********  SENSING ******************************************************/
 // SENSING : Read all sensors
-void readSensor(){
-  readIrSensors();
+void readSensors(){
+  readIrSensor();
   readUltraSensor()
   
 }
