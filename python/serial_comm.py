@@ -1,4 +1,6 @@
-#serial_comm.py
+# serial_comm.py
+# sketch_serial_comm.ino
+# single byte communication between Raspberry pi and Arduino
 #!/usr/bin/ python2
 import serial
 import time
