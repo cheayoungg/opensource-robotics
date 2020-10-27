@@ -1,3 +1,7 @@
+// sketch_serial_comm_3Bytes.ino
+// serial_comm_binary_3Bytes.py
+// 3 bytes(character) data transfer between Raspberry pi and Arduino
+
 #define  NUM_OF_RECEIVED_BYTES    (3)  
  bool sendReady = 0;
  char receivedData[NUM_OF_RECEIVED_BYTES];
