@@ -22,7 +22,7 @@ void loop() {
     if (inByte == 'A')
     {
       count++;
-      Serial.write(count % 255);
+      Serial.write(count % 256);
     }   
    
   }
