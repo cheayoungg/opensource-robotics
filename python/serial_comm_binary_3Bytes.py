@@ -1,7 +1,7 @@
 
 # serial_comm_binary_3Bytes.py
 # sketch_serial_comm_3Bytes.ino
-# 3 BYTES (unsigned character) communication between Raspberry pi and Arduino
+# 3 BYTES (character) communication between Raspberry pi and Arduino
 
 #!/usr/bin/ python2
 
@@ -29,14 +29,14 @@ while 1:
         if dataSendReadyFlag:
                 data += 1
                 rawData = (data,data+1,data+2) 
-                sendDataNumber3(ser,rawData,'BBB')
+                sendDataNumber3(ser,rawData,'bbb')
                 dataSendReadyFlag=0 # reset dataSendReady flag
 
         if(ser.inWaiting() ==  NumOfData):
                 dataSendReadyFlag=1 # set dataSendReady flag
                 dataReceivedCount +=1
                 readBytes = ser.read(NumOfData)
-                decode = struct.unpack_from('BBB',readBytes)
+                decode = struct.unpack_from('bbb',readBytes)
                 print 'count:%s, decode: %s' % (dataReceivedCount,decode)
                 time.sleep(0.5)
 
