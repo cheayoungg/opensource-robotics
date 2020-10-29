@@ -267,28 +267,28 @@ void driveArdumoto(byte motor, byte dir, byte spd)
 void robotForward(int powerLeft, int powerRight)
 {
   driveArdumoto(MOTOR_RIGHT,CW,powerRight);
-  driveArdumoto(MOTOR_LEFT,CCW,powerRight);
+  driveArdumoto(MOTOR_LEFT,CCW,powerLeft);
   
 }
 // MOTOR-CONTROL : motion-backward
 void robotBackward(int powerLeft, int powerRight)
 {
   driveArdumoto(MOTOR_RIGHT,CCW,powerRight);
-  driveArdumoto(MOTOR_LEFT,CW,powerRight);
+  driveArdumoto(MOTOR_LEFT,CW,powerLeft);
   
 }
 // MOTOR-CONTROL : motion-right
 void robotRight(int powerLeft, int powerRight)
 {
   driveArdumoto(MOTOR_RIGHT,CCW,powerRight);
-  driveArdumoto(MOTOR_LEFT,CCW,powerRight);
+  driveArdumoto(MOTOR_LEFT,CCW,powerLeft);
 }
 
 // MOTOR-CONTROL : motion-left
 void robotLeft(int powerLeft, int powerRight)
 {
   driveArdumoto(MOTOR_RIGHT,CW,powerRight);
-  driveArdumoto(MOTOR_LEFT,CW,powerRight);
+  driveArdumoto(MOTOR_LEFT,CW,powerLeft);
 }
 
 // MOTOR-CONTROL : motion-stop
