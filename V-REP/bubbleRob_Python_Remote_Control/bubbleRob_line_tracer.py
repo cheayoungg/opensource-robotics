@@ -54,7 +54,7 @@ errorCode_r,flag_rs,right_sensor_data = vrep.simxReadVisionSensor(clientID,right
 
 #Set initial simulation properties
 #wheelVelocityLeft = wheelVelocityRight    # initial wheel veloicties
-wheelVelocityLeft = wheelVeolocityRight = 1
+wheelVelocityLeft = wheelVelocityRight = 1
 simulationStartTime = time.time()           # simulation start time
 simulationTime = 30                         # simulation time
 backUntilTime = -1                          # line following correction time
@@ -96,10 +96,11 @@ while (time.time() - simulationStartTime) < simulationTime:
     errorCode_l,flag_ls,left_sensor_data = vrep.simxReadVisionSensor(clientID,left_sensor_handle,vrep.simx_opmode_buffer)
     errorCode_r,flag_rs,right_sensor_data = vrep.simxReadVisionSensor(clientID,right_sensor_handle,vrep.simx_opmode_buffer)
     #  intentsity of image
-    middle_sensor_IR = 0.3
-    left_sensor_IR = 0.3
-    right_sensor_IR = 0.3 
-    print 'ir-L:{},ir-M:{}.ir-R:{}'.format(left_sensor_data[0][11],middle_sensor_data[0][11],right_sensor_data[0][11])
+    threshold = 0.4
+    middle_sensor_IR = middle_sensor_data[0][10] < threshold
+    left_sensor_IR = left_sensor_data[0][10] < threshold
+    right_sensor_IR = right_sensor_data[0][10] < threshold
+    
 
 
    
@@ -116,26 +117,40 @@ while (time.time() - simulationStartTime) < simulationTime:
     # LIne Following ,compute left and right velocities to follow the detected line:
    
     
-    speed = 0
-    if left_sensor_IR:
-         wheelVelocityLeft=0.03*speed
-    
-    if right_sensor_IR:
-        wheelVelocityRight=0.03*speed
-    
-    if (left_sensor_IR and right_sensor_IR):
-        backUntilTime = time.time() + 2
+    speed = 3
     
 
-    if (backUntilTime<time.time()) :
-        # When in forward mode, we simply move forward at the desired speed
-        wheelVelocityLeft = wheelVelocityRight = speed
-    else:
+    if middle_sensor_IR :
+        wheelVelocityLeft=speed
+        wheelVelocityRight = speed
+    
+    if left_sensor_IR :
+         wheelVelocityLeft=0.03*speed
+         wheelVelocityRight = speed
+    
+    if right_sensor_IR :
+        wheelVelocityRight=0.03*speed
+        wheelVelocityLeft = speed
+    
+    if (not middle_sensor_IR and not left_sensor_IR  and not right_sensor_IR):
+        backUntilTime = time.time() + 2
+        wheelVelocityRight= 0.5*speed
+        wheelVelocityLeft = -0.5*speed
+        
+    
+    
+
+    #if (backUntilTime < time.time()):
+       # When in forward mode, we simply move forward at the desired speed
+    #    wheelVelocityLeft = wheelVelocityRight = speed
+    #else:
         # When in backward mode, we simply backup in a curve at reduced speed
-        wheelVelocityLeft  = -speed/2
-        wheelVelocityRight = -speed/8
+     #  wheelVelocityRight= -1/8*speed
+     #  wheelVelocityLeft = -1.2*speed
     
-    
+    # display sensor value and speed
+    print 'ir-L:{},ir-M:{}.ir-R:{}'.format(left_sensor_IR,middle_sensor_IR,right_sensor_IR)
+    print 'left-motot-speed:{}, right-motor-speed:{}'.format(wheelVelocityLeft,wheelVelocityRight)
     
         
 
@@ -166,7 +181,7 @@ while (time.time() - simulationStartTime) < simulationTime:
 # Set right-joint velocity to zero
 #errorCode=vrep.simxSetJointTargetVelocity(clientID,right_motor_handle,0, vrep.simx_opmode_oneshot)
 # Stop simulation
-#vrep.simxStopSimulation(clientID, vrep.simx_opmode_oneshot)
+vrep.simxStopSimulation(clientID, vrep.simx_opmode_oneshot)
 # Before closing the connection to V-REP, make sure that the last command sent out had time to arrive. You can guarantee this with (for example):
 vrep.simxGetPingTime(clientID)
 # Now close the connection to V-REP:
