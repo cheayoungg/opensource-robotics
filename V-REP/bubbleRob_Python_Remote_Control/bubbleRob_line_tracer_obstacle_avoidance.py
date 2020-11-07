@@ -53,28 +53,41 @@ errorCode_r,flag_rs,right_sensor_data = vrep.simxReadVisionSensor(clientID,right
 
 
 #Set initial simulation properties
-#wheelVelocityLeft = wheelVelocityRight    # initial wheel veloicties
-wheelVelocityLeft = wheelVelocityRight = 1
+wheelVelocityLeft = wheelVelocityRight = 1   # initial wheel velocites
 simulationStartTime = time.time()           # simulation start time
-simulationTime = 30                         # simulation time
-backUntilTime = -1                          # line following correction time
+simulationTime = 40                        # simulation time
+
 
 # motion functions
-def moveBackward(speed):
-    global wheelVelocityRight, wheelVelocityLeft
-    wheelVelocityRight =   -speed/2
-    wheelVelocityLeft =    -speed/8
-    #time.sleep(3)
 
 def moveForward(speed):
     global wheelVelocityRight, wheelVelocityLeft
     wheelVelocityRight =   speed
     wheelVelocityLeft =    speed
 
-def moveRight(speed):
+def turnRight(speed):
     global wheelVelocityRight, wheelVelocityLeft
-    wheelVelocityRight =   -0.6*speed
-    wheelVelocityLeft =    speed
+    wheelVelocityRight =   1.2*speed
+    wheelVelocityLeft =    0.01*speed
+
+def turnLeft(speed):
+    global wheelVelocityRight, wheelVelocityLeft
+    wheelVelocityRight =   0.01*speed
+    wheelVelocityLeft =    1.2*speed
+
+def moveBackward(speed):
+    global wheelVelocityRight, wheelVelocityLeft
+    wheelVelocityRight =   -speed
+    wheelVelocityLeft =    -speed
+
+
+
+# setup
+speed = 1.5
+avoidSpeed = 1.5
+update = True
+avoidTime1 = avoidTime2 = avoidTime3 = -1
+middle_sensor_IR = left_sensor_IR = right_sensor_IR = False
 
 # simulation loop
 while (time.time() - simulationStartTime) < simulationTime:
@@ -95,6 +108,7 @@ while (time.time() - simulationStartTime) < simulationTime:
     errorCode_m,flag_ms,middle_sensor_data = vrep.simxReadVisionSensor(clientID,middle_sensor_handle,vrep.simx_opmode_buffer)
     errorCode_l,flag_ls,left_sensor_data = vrep.simxReadVisionSensor(clientID,left_sensor_handle,vrep.simx_opmode_buffer)
     errorCode_r,flag_rs,right_sensor_data = vrep.simxReadVisionSensor(clientID,right_sensor_handle,vrep.simx_opmode_buffer)
+
     #  intentsity of image
     threshold = 0.4
     middle_sensor_IR = middle_sensor_data[0][10] < threshold
@@ -102,64 +116,64 @@ while (time.time() - simulationStartTime) < simulationTime:
     right_sensor_IR = right_sensor_data[0][10] < threshold
     
 
-
    
-    sensor_val = detectionState # detect sta clientIDte : True or False
+    sensor_val = detectionState # detection state of obstacle : True or False
     print 'errCode:{},detectionState:{},detectedPoint:{}'.format(errorCode,detectionState,detectedPoint)
 
-    # Calculate control action
-    # if obstacle is detected, then turn.
-    #if sensor_val == True:
-    #   moveRight(10)       
-    #else:
-    #    moveForward(2)
 
-    # LIne Following ,compute left and right velocities to follow the detected line:
-   
+    # LIne Following ,compute left and right velocities to follow the line:
+    myTime = time.time() # current simulation time
     
-    speed = 2
-
-    myTime = time.time()
-    
-    if detectionState == False:
+    if detectionState == False:  # 장애물이 감지되지 않으면 
       if middle_sensor_IR :
-        wheelVelocityLeft=speed
-        wheelVelocityRight = speed
+          moveForward(speed)
     
-      if left_sensor_IR :
-         wheelVelocityLeft=0.03*speed
-         wheelVelocityRight = speed
+      elif left_sensor_IR :
+          turnRight(speed)
     
-      if right_sensor_IR :
-        wheelVelocityRight=0.03*speed
-        wheelVelocityLeft = speed
-    
-      if (not middle_sensor_IR and not left_sensor_IR  and not right_sensor_IR):
-          pass
-        #backUntilTime = time.time() + 2
-        #wheelVelocityRight= 0.5*speed
-        #wheelVelocityLeft = -0.5*speed
-    else:
-        #wheelVelocityRight = wheelVelocityLeft =0
-        backUntilTime = myTime + 1
-        
-    
-    
+      elif right_sensor_IR :
+          turnLeft(speed)
 
-    if (backUntilTime < time.time()):
-       # When in forward mode, we simply move forward at the desired speed
-       # wheelVelocityLeft = wheelVelocityRight = speed
-       pass
+      elif (right_sensor_IR and middle_sensor_IR ):
+         print 'MR \n'
+
+      elif (left_sensor_IR and middle_sensor_IR ):
+         print 'LM \n'
     
-    else:
-        # When in backward mode, we simply backup in a curve at reduced speed
-       wheelVelocityRight= 0.1*speed
-       wheelVelocityLeft = 3*speed
+      elif (not middle_sensor_IR and  not left_sensor_IR  and  not right_sensor_IR):
+         
+          print 'LMR \n'
+
+      else:
+          print 'ELSE'
+    elif ((detectionState == True)  and (update == True)):  # 장애물이 감지되면 
+        #wheelVelocityRight = wheelVelocityLeft =0
+        avoidTime1 = myTime + 1  # 1초 동안 좌회전  
+        avoidTime2 = avoidTime1 + 1  # 1초 동안 우회전 
+        avoidTime3 = avoidTime2 + 0.5  # 1초 동안 직진 + 좌회전 
+        update = False
+
+    # 장애물 회피 
+    if myTime < avoidTime1:  # 우회전 
+          wheelVelocityRight= 2*avoidSpeed
+          wheelVelocityLeft = 0.8*avoidSpeed
+    
+    elif((myTime >= avoidTime1) and (myTime < avoidTime2)): # 좌회전 
+         wheelVelocityRight= 0.3*avoidSpeed
+         wheelVelocityLeft = 2*avoidSpeed
+
+    elif((myTime >= avoidTime2) and (myTime <= avoidTime3)): # 직진 + 우회전 
+         wheelVelocityRight= 1 * avoidSpeed
+         wheelVelocityLeft = 1.2 * avoidSpeed
+         update =True
+
+                      
     
     # display sensor value and speed
     print 'ir-L:{},ir-M:{}.ir-R:{}'.format(left_sensor_IR,middle_sensor_IR,right_sensor_IR)
     print 'left-motot-speed:{}, right-motor-speed:{}'.format(wheelVelocityLeft,wheelVelocityRight)
-    
+
+
         
 
     # Set Joint Veolocities
