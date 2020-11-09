@@ -55,7 +55,7 @@ errorCode_r,flag_rs,right_sensor_data = vrep.simxReadVisionSensor(clientID,right
 #Set initial simulation properties
 wheelVelocityLeft = wheelVelocityRight = 1   # initial wheel velocites
 simulationStartTime = time.time()           # simulation start time
-simulationTime = 25                        # simulation time
+simulationTime = 35                       # simulation time
 
 
 # motion functions
@@ -83,10 +83,10 @@ def moveBackward(speed):
 
 
 # setup
-speed = 1.5  # robot speed
-avoidSpeed = 1.5  # robot speed for obstacle avoidance
-update = True
-avoidTime1 = avoidTime2 = avoidTime3 = -1
+speed = 1.0  # robot speed
+avoidSpeed = 1.0  # robot speed for obstacle avoidance
+update = True  # robot obstacle avoidance setting
+avoidTime1 = avoidTime2 = avoidTime3 = -1  # robot obstacle avoidance time setting
 middle_sensor_IR = left_sensor_IR = right_sensor_IR = False
 
 # simulation loop
@@ -164,7 +164,7 @@ while (time.time() - simulationStartTime) < simulationTime:
 
     elif((myTime >= avoidTime2) and (myTime <= avoidTime3)): # 직진 + 우회전 
          wheelVelocityRight= 1 * avoidSpeed
-         wheelVelocityLeft = 1.2 * avoidSpeed
+         wheelVelocityLeft = 1.1 * avoidSpeed
          update =True
 
                       
