@@ -55,7 +55,7 @@ errorCode_r,flag_rs,right_sensor_data = vrep.simxReadVisionSensor(clientID,right
 #Set initial simulation properties
 wheelVelocityLeft = wheelVelocityRight = 1   # initial wheel velocites
 simulationStartTime = time.time()           # simulation start time
-simulationTime = 40                        # simulation time
+simulationTime = 25                        # simulation time
 
 
 # motion functions
@@ -83,8 +83,8 @@ def moveBackward(speed):
 
 
 # setup
-speed = 1.5
-avoidSpeed = 1.5
+speed = 1.5  # robot speed
+avoidSpeed = 1.5  # robot speed for obstacle avoidance
 update = True
 avoidTime1 = avoidTime2 = avoidTime3 = -1
 middle_sensor_IR = left_sensor_IR = right_sensor_IR = False
@@ -118,7 +118,7 @@ while (time.time() - simulationStartTime) < simulationTime:
 
    
     sensor_val = detectionState # detection state of obstacle : True or False
-    print 'errCode:{},detectionState:{},detectedPoint:{}'.format(errorCode,detectionState,detectedPoint)
+    print (f'errCode:{errorCode},detectionState:{detectionState},detectedPoint:{detectedPoint}')
 
 
     # LIne Following ,compute left and right velocities to follow the line:
@@ -135,30 +135,30 @@ while (time.time() - simulationStartTime) < simulationTime:
           turnLeft(speed)
 
       elif (right_sensor_IR and middle_sensor_IR ):
-         print 'MR \n'
+         print ('MR \n')
 
       elif (left_sensor_IR and middle_sensor_IR ):
-         print 'LM \n'
+         print ('LM \n')
     
       elif (not middle_sensor_IR and  not left_sensor_IR  and  not right_sensor_IR):
          
-          print 'LMR \n'
+          print ('LMR \n')
 
       else:
-          print 'ELSE'
+          print ('ELSE')
     elif ((detectionState == True)  and (update == True)):  # 장애물이 감지되면 
         #wheelVelocityRight = wheelVelocityLeft =0
         avoidTime1 = myTime + 1  # 1초 동안 좌회전  
         avoidTime2 = avoidTime1 + 1  # 1초 동안 우회전 
-        avoidTime3 = avoidTime2 + 0.5  # 1초 동안 직진 + 좌회전 
+        avoidTime3 = avoidTime2 + 0.5  # 1초 동안 직진 + 우회전 
         update = False
 
     # 장애물 회피 
-    if myTime < avoidTime1:  # 우회전 
+    if myTime < avoidTime1:  # 좌회전 
           wheelVelocityRight= 2*avoidSpeed
           wheelVelocityLeft = 0.8*avoidSpeed
     
-    elif((myTime >= avoidTime1) and (myTime < avoidTime2)): # 좌회전 
+    elif((myTime >= avoidTime1) and (myTime < avoidTime2)): # 우회전 
          wheelVelocityRight= 0.3*avoidSpeed
          wheelVelocityLeft = 2*avoidSpeed
 
@@ -170,8 +170,8 @@ while (time.time() - simulationStartTime) < simulationTime:
                       
     
     # display sensor value and speed
-    print 'ir-L:{},ir-M:{}.ir-R:{}'.format(left_sensor_IR,middle_sensor_IR,right_sensor_IR)
-    print 'left-motot-speed:{}, right-motor-speed:{}'.format(wheelVelocityLeft,wheelVelocityRight)
+    print (f'ir-L:{left_sensor_IR},ir-M:{middle_sensor_IR}.ir-R:{right_sensor_IR}')
+    print (f'left-motot-speed:{wheelVelocityLeft}, right-motor-speed:{wheelVelocityRight}')
 
 
         
@@ -191,9 +191,8 @@ while (time.time() - simulationStartTime) < simulationTime:
     # Display simulation result
     elapsedTime = time.time()-simulationStartTime #elaped time since start of simulation
     #print 'simTime:{0:2.1f}, sensorValue:{1:2.1f}'.format(elapsedTime, sensor_val)
-    print ('simTime:{}, sensorValue:{}'.format(elapsedTime, sensor_val))
-    print ('wheelVelocityLeft:{0:2.1f}, wheelVelocityRight:{1:2.1f}' \
-                              .format(wheelVelocityLeft, wheelVelocityRight))
+    print (f'simTime:{elapsedTime}, sensorValue:{sensor_val}')
+    print (f'wheelVelocityLeft:{wheelVelocityLeft:2.1f}, wheelVelocityRight:{wheelVelocityRight:2.1f}')
 
 #############################
 #Post ALlocation- stop robot#
@@ -208,7 +207,7 @@ vrep.simxStopSimulation(clientID, vrep.simx_opmode_oneshot)
 vrep.simxGetPingTime(clientID)
 # Now close the connection to V-REP:
 vrep.simxFinish(clientID)
-print ('{0}'.format("control complete and connection lost ..."))
+print ('control complete and connection lost ...')
 
 
 
